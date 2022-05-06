@@ -1,0 +1,26 @@
+[package]
+name = "wayland_input"
+version = "0.1.0"
+authors = ["pentamassiv <pentamassiv@posteo.de>"]
+license = "MIT"
+description = "Safe wrapper to easily use the zwp-input-method and zwp-virtual-keyboard protocols"
+repository = "https://github.com/pentamassiv/wayland_input"
+documentation = "https://docs.rs/wayland_input"
+keywords = ["wayland", "virtual_keyboard", "wayland-scanner", "unstable", "wayland-protocols"]
+categories = ["gui", "os::linux-apis"]
+edition = "2021"
+
+[dependencies]
+wayland-client = {version="0.29", features = ["use_system_lib"]}
+wayland-protocols = {version="0.29", features = ["client", "unstable_protocols"]}
+input-event-codes = "5.16.8"
+zwp-input-method = "0.3"
+log = { version = "0.4", optional = true }
+zwp-virtual-keyboard = "0.2.6"
+libc = "0.2.125"
+bitflags = {version = "1.2"}
+tempfile = "3.2"
+memmap2 = "0.5"
+
+[features]
+debug = ["log"]
