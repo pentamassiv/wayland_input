@@ -1,14 +1,6 @@
 use gtk::prelude::*;
 use gtk::{gio, glib};
-use std::convert::AsRef;
-use std::convert::TryInto;
-use std::io::{Seek, SeekFrom, Write};
-use std::os::unix::io::IntoRawFd;
-use std::time::{Duration, Instant};
-use tempfile::tempfile;
-use wayland_client::{protocol::wl_seat::WlSeat, EventQueue, Main};
-use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_manager_v1::ZwpVirtualKeyboardManagerV1;
-use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_v1::ZwpVirtualKeyboardV1;
+use wayland_input::DummyConnector;
 
 fn main() {
     let application = gtk::Application::new(
@@ -70,40 +62,41 @@ fn build_ui(application: &gtk::Application) {
 
     let button = gtk::Button::with_label("Input text!");
 
-    let (event_queue, seat, vk_mgr) = gdk_wayland::init_wayland();
-    let mut vk_service = VKService::new(event_queue, &seat, vk_mgr.unwrap());
-    let mut callback = move |_| {
-        // Long press K
-        let key = input_event_codes::KEY_K!();
-        let submission_result = vk_service.long_press_keycode(key);
-        if submission_result.is_err() {
-            println!("Error: {:?}", submission_result);
-        };
-        println!("Long press done");
+    let mut vk_service = wayland_input::IMService::new::<DummyConnector>(None);
 
-        // Toggle shift and long press E
-        let key = input_event_codes::KEY_E!();
-        let submission_result = vk_service.toggle_shift();
+    let mut callback = move |_| {
+        // Enter a string
+        let submission_result = vk_service.commit_string("Start typing".to_string());
+        let submission_result = vk_service.commit();
         if submission_result.is_err() {
             println!("Error: {:?}", submission_result);
         };
-        let submission_result = vk_service.long_press_keycode(key);
+        println!("Start typing");
+
+        // Delete some text
+        let submission_result = vk_service.delete_surrounding_text(6, 0);
+        let submission_result = vk_service.commit();
         if submission_result.is_err() {
             println!("Error: {:?}", submission_result);
         };
-        println!("First toggle shift and long press x");
+        println!("Deleted some letters");
 
         // Toggle shift and long press Y
-        let key = input_event_codes::KEY_Y!();
-        let submission_result = vk_service.toggle_shift();
+        let keycode = input_event_codes::KEY_Y!();
+        let press = wayland_input::KeyState::Pressed;
+        let release = wayland_input::KeyState::Released;
+        let submission_result = vk_service.send_key(keycode, press);
         if submission_result.is_err() {
             println!("Error: {:?}", submission_result);
         };
-        let submission_result = vk_service.long_press_keycode(key);
+        //let submission_result = vk_service.send_key(keycode, release);
+        //let submission_result = vk_service.send_key(keycode, release);
         if submission_result.is_err() {
             println!("Error: {:?}", submission_result);
         };
         println!("Second toggle shift and long press x");
+
+        vk_service.sync_eventqueue();
     };
 
     button.connect_clicked(callback);

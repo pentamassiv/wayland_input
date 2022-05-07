@@ -9,6 +9,7 @@ use std::convert::{AsRef, TryInto};
 use std::io::{Seek, SeekFrom, Write};
 use std::num::Wrapping;
 use std::os::unix::io::IntoRawFd;
+use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tempfile::tempfile;
 use wayland_client::{protocol::wl_seat::WlSeat, EventQueue, Filter, Main};
@@ -57,8 +58,8 @@ mod event_enum {
 #[derive(Debug)]
 /// Manages the pending state and the current state of the input method.
 pub struct IMService {
-    event_queue: EventQueue,
-    im: Option<(Main<ZwpInputMethodV2>, Wrapping<u32>)>,
+    event_queue: Arc<Mutex<EventQueue>>,
+    im: Option<(Main<ZwpInputMethodV2>, Arc<Mutex<Wrapping<u32>>>)>,
     vk: Option<(Main<ZwpVirtualKeyboardV1>, std::time::Instant)>,
 }
 
@@ -84,7 +85,7 @@ impl IMService {
         let vk = vk_mgr.map(|vk_mgr| Self::new_vk(&seat, vk_mgr)).ok();
 
         Self {
-            event_queue,
+            event_queue: Arc::new(Mutex::new(event_queue)),
             im,
             vk,
         }
@@ -95,7 +96,7 @@ impl IMService {
         seat: &WlSeat,
         im_manager: Main<ZwpInputMethodManagerV2>,
         connector: C,
-    ) -> (Main<ZwpInputMethodV2>, Wrapping<u32>) {
+    ) -> (Main<ZwpInputMethodV2>, Arc<Mutex<Wrapping<u32>>>) {
         // Get ZwpInputMethodV2 from ZwpInputMethodManagerV2
         let im = im_manager.get_input_method(seat);
 
@@ -126,7 +127,7 @@ impl IMService {
         #[cfg(feature = "debug")]
         info!("New IMService was created");
         // Return the wrapped IMServiceArc
-        (im, serial)
+        (im, Arc::new(Mutex::new(serial)))
     }
 
     /// Creates a new IMServiceArc wrapped in Arc<Mutex<Self>>
@@ -218,17 +219,17 @@ impl IMService {
     /// Sends a 'commit' request to the wayland server
     ///
     /// This makes the pending changes permanent
-    pub fn commit(&mut self) -> Result<(), SubmitError> {
+    pub fn commit(&self) -> Result<(), SubmitError> {
         #[cfg(feature = "debug")]
         info!("Commit the changes");
-        if let Some((im, mut serial)) = &mut self.im {
+        if let Some((im, serial)) = &self.im {
             // Check if proxy is still alive. If the proxy was dead, the requests would fail silently
             match im.as_ref().is_alive() {
                 true => {
                     // Send request to wayland-server
-                    im.commit(serial.0);
+                    im.commit(serial.lock().unwrap().0);
                     // Increase the serial
-                    serial += Wrapping(1u32);
+                    serial.lock().unwrap().0 += 1;
                     Ok(())
                 }
                 false => Err(SubmitError::NotAlive),
@@ -309,8 +310,10 @@ impl IMService {
         }
     }
 
-    pub fn sync_eventqueue(&mut self) {
+    pub fn sync_eventqueue(&self) {
         self.event_queue
+            .lock()
+            .unwrap()
             .sync_roundtrip(&mut (), |raw_event, _, _| {
                 println!("Unhandled Event: {:?}", raw_event)
             })
