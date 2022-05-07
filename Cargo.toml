@@ -17,10 +17,16 @@ tempfile = "3.2"
 memmap2 = "0.5"
 wayland-client = {version="0.29", features = ["use_system_lib"]}
 wayland-protocols = {version="0.29", features = ["client", "unstable_protocols"]}
-input-event-codes = "5.16.8"
 zwp-input-method = "0.3"
 zwp-virtual-keyboard = "0.2.6"
 log = { version = "0.4", optional = true }
+
+[dev-dependencies]
+glib = {version = "0.15.11"}
+gdk-sys = {version = "0.15.1"}
+gdk = {version = "0.15.4", features = ["v3_22"]}
+gtk = "0.15.5"
+input-event-codes = "5.16.8"
 
 [features]
 debug = ["log"]
