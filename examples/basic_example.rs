@@ -29,6 +29,7 @@ fn main() {
         println!("Error: {:?}", submission_result);
     };
     let submission_result = vk_service.send_key(keycode, release);
+    let submission_result = vk_service.send_key(keycode, release);
     if submission_result.is_err() {
         println!("Error: {:?}", submission_result);
     };
