@@ -1,10 +1,6 @@
-use super::SubmitError;
-use wayland_client::{protocol::wl_seat::WlSeat, Main};
-use wayland_protocols::unstable::text_input::v3::client::zwp_text_input_v3::ChangeCause;
 use wayland_protocols::unstable::text_input::v3::client::zwp_text_input_v3::{
-    ContentHint, ContentPurpose,
+    ChangeCause, ContentHint, ContentPurpose,
 };
-use zwp_input_method::input_method_unstable_v2::zwp_input_method_manager_v2::ZwpInputMethodManagerV2;
 
 /// Trait to get notified when the input method should be active or deactivated
 ///
@@ -17,4 +13,17 @@ pub trait IMConnector {
     fn content_type(&self, content_hint: ContentHint, content_purpose: ContentPurpose);
     fn done(&self);
     fn unavailable(&self);
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct DummyConnector {}
+
+impl IMConnector for DummyConnector {
+    fn activated(&self) {}
+    fn deactivated(&self) {}
+    fn surrounding_text(&self, _: String, _: usize, _: usize) {}
+    fn text_change_cause(&self, _: ChangeCause) {}
+    fn content_type(&self, _: ContentHint, _: ContentPurpose) {}
+    fn done(&self) {}
+    fn unavailable(&self) {}
 }
