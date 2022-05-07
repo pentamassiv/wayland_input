@@ -34,5 +34,5 @@ fn main() {
     };
     println!("Second toggle shift and long press x");
 
-    //vk_service.sync_eventqueue();
+    vk_service.sync_eventqueue();
 }

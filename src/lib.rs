@@ -309,7 +309,7 @@ impl IMService {
         }
     }
 
-    fn sync_eventqueue(&mut self) {
+    pub fn sync_eventqueue(&mut self) {
         self.event_queue
             .sync_roundtrip(&mut (), |raw_event, _, _| {
                 println!("Unhandled Event: {:?}", raw_event)

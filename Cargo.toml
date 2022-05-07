@@ -11,16 +11,16 @@ categories = ["gui", "os::linux-apis"]
 edition = "2021"
 
 [dependencies]
-wayland-client = {version="0.29", features = ["use_system_lib"]}
-wayland-protocols = {version="0.29", features = ["client", "unstable_protocols"]}
-input-event-codes = "5.16.8"
-zwp-input-method = "0.3"
-log = { version = "0.4", optional = true }
-zwp-virtual-keyboard = "0.2.6"
 libc = "0.2.125"
 bitflags = {version = "1.2"}
 tempfile = "3.2"
 memmap2 = "0.5"
+wayland-client = {version="0.29", features = ["use_system_lib"]}
+wayland-protocols = {version="0.29", features = ["client", "unstable_protocols"]}
+input-event-codes = "5.16.8"
+zwp-input-method = "0.3"
+zwp-virtual-keyboard = "0.2.6"
+log = { version = "0.4", optional = true }
 
 [features]
 debug = ["log"]
