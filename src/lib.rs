@@ -37,49 +37,37 @@ pub enum KeyState {
 
 #[derive(Clone, Debug)]
 /// Manages the pending state and the current state of the input method.
-pub struct IMService<T: 'static + IMVisibility + HintPurpose, D: 'static + ReceiveSurroundingText> {
-    im_service_arc: Arc<Mutex<IMServiceArc<T, D>>>, // provides an easy to use interface by hiding the Arc<Mutex<>>
+pub struct IMService {
+    im_service_arc: IMServiceArc,
 }
 
-impl<T: IMVisibility + HintPurpose, D: ReceiveSurroundingText> IMService<T, D> {
-    fn new(
+impl IMService {
+    fn new<C: IMConnector + 'static>(
         seat: &WlSeat,
         im_manager: Main<ZwpInputMethodManagerV2>,
-        ui_connector: T,
-        content_connector: D,
+        connector: C,
     ) -> Self {
-        let im_service_arc = IMServiceArc::new(seat, im_manager, ui_connector, content_connector);
+        let im_service_arc = IMServiceArc::new(seat, im_manager, connector);
         IMService { im_service_arc }
     }
 
     fn commit_string(&self, text: String) -> Result<(), SubmitError> {
-        self.im_service_arc.lock().unwrap().commit_string(text)
+        self.im_service_arc.commit_string(text)
     }
 
     fn delete_surrounding_text(&self, before: usize, after: usize) -> Result<(), SubmitError> {
-        self.im_service_arc
-            .lock()
-            .unwrap()
-            .delete_surrounding_text(before, after)
+        self.im_service_arc.delete_surrounding_text(before, after)
     }
 
-    fn commit(&self) -> Result<(), SubmitError> {
-        self.im_service_arc.lock().unwrap().commit()
-    }
-
-    fn is_active(&self) -> bool {
-        self.im_service_arc.lock().unwrap().is_active()
-    }
-
-    fn get_surrounding_text(&self) -> (String, String) {
-        self.im_service_arc.lock().unwrap().get_surrounding_text()
+    fn commit(&mut self) -> Result<(), SubmitError> {
+        self.im_service_arc.commit()
     }
 }
 
 #[derive(Clone, Debug)]
 /// Manages the pending state and the current state of the input method.
 pub struct VKService {
-    vk_service_arc: Arc<Mutex<VKServiceArc>>, // provides an easy to use interface by hiding the Arc<Mutex<>>
+    vk_service: VKServiceArc, // provides an easy to use interface by hiding the Arc<Mutex<>>
 }
 
 impl VKService {
@@ -88,15 +76,12 @@ impl VKService {
         seat: &WlSeat,
         vk_manager: Main<ZwpVirtualKeyboardManagerV1>,
     ) -> (EventQueue, Self) {
-        let (event_queue, vk_service_arc) = VKServiceArc::new(event_queue, seat, vk_manager);
-        (event_queue, Self { vk_service_arc })
+        let (event_queue, vk_service) = VKServiceArc::new(event_queue, seat, vk_manager);
+        (event_queue, Self { vk_service })
     }
 
     fn send_key(&self, keycode: KeyCode, desired_key_state: KeyState) -> Result<(), SubmitError> {
-        self.vk_service_arc
-            .lock()
-            .unwrap()
-            .send_key(keycode, desired_key_state)
+        self.vk_service.send_key(keycode, desired_key_state)
     }
 }
 

@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::{Arc, Mutex};
 use wayland_client::{protocol::wl_seat::WlSeat, EventQueue, Main};
 
@@ -12,19 +13,7 @@ use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_v1:
 
 use super::{KeyCode, KeyState, SubmitError};
 
-/// Stores the state of the virtual keyboard
-#[derive(Clone, Debug)]
-struct VKModifierState {
-    // Removed
-}
-
-impl Default for VKModifierState {
-    fn default() -> Self {
-        Self {}
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Manages the pending state and the current state of the input method.
 ///
 /// It is called IMServiceArc and not IMService because the new() method
@@ -32,7 +21,6 @@ impl Default for VKModifierState {
 /// One thread could handle requests while the other one handles events from the wayland-server
 pub struct VKServiceArc {
     vk: Main<ZwpVirtualKeyboardV1>,
-    modifiers: VKModifierState,
     //event_queue: EventQueue, // Preventing event_queue from being dropped
     base_time: std::time::Instant,
 }
@@ -43,25 +31,17 @@ impl VKServiceArc {
         event_queue: EventQueue,
         seat: &WlSeat,
         vk_manager: Main<ZwpVirtualKeyboardManagerV1>,
-    ) -> (EventQueue, Arc<Mutex<VKServiceArc>>) {
+    ) -> (EventQueue, VKServiceArc) {
         let base_time = Instant::now();
-        let modifiers = VKModifierState::default();
 
         // Get ZwpInputMethodV2 from ZwpInputMethodManagerV2
         let vk = vk_manager.create_virtual_keyboard(&seat);
 
         // Create VKServiceArc with default values
-        let vk_service = VKServiceArc {
-            vk,
-            modifiers: VKModifierState::default(),
-
-            base_time,
-        };
+        let vk_service = VKServiceArc { vk, base_time };
 
         vk_service.init_virtual_keyboard();
 
-        // Wrap VKServiceArc to allow mutability from multiple threads
-        let vk_service = Arc::new(Mutex::new(vk_service));
         #[cfg(feature = "debug")]
         info!("New VKService was created");
         // Return the wrapped VKServiceArc
@@ -89,20 +69,20 @@ impl VKServiceArc {
         self.vk.keymap(1, keymap_raw_fd, keymap_size_u32);
     }
 
-    fn get_duration(&mut self) -> u32 {
+    fn get_duration(&self) -> u32 {
         let duration = self.base_time.elapsed();
         let duration = duration.as_millis();
         if let Ok(duration) = duration.try_into() {
             duration
         } else {
-            // Reset the base time if it was too big for a u32
-            self.base_time = Instant::now();
-            self.get_duration()
+            (duration % std::mem::size_of::<u32>() as u128)
+                .try_into()
+                .unwrap()
         }
     }
 
     pub fn send_key(
-        &mut self,
+        &self,
         keycode: KeyCode,
         desired_key_state: KeyState,
     ) -> Result<(), SubmitError> {
