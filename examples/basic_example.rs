@@ -23,7 +23,7 @@ fn main() {
     // Toggle shift and long press Y
     let keycode = input_event_codes::KEY_Y!();
     let press = wayland_input::KeyState::Pressed;
-    let release = wayland_input::KeyState::Pressed;
+    let release = wayland_input::KeyState::Released;
     let submission_result = vk_service.send_key(keycode, press);
     if submission_result.is_err() {
         println!("Error: {:?}", submission_result);
