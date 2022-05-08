@@ -181,6 +181,8 @@ impl IMService {
     /// INPUTS: text -> Text that will be committed
     /// Wayland messages have a maximum length so the length of the text must not exceed 4000 bytes
     pub fn commit_string(&self, text: String) -> Result<(), SubmitError> {
+        #[cfg(feature = "debug")]
+        info!("Commit_string method was called");
         if let Some((im, _)) = &self.im {
             // Check if proxy is still alive. If the proxy was dead, the requests would fail silently
             match im.as_ref().is_alive() {
