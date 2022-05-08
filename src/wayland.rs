@@ -44,25 +44,8 @@ pub fn init_wayland() -> (
         .unwrap();
     let (event_queue, global_mgr) = get_wl_global_mgr(display.clone());
     #[cfg(feature = "debug")]
-    let global_list = global_mgr.list();
-    #[cfg(feature = "debug")]
-    for (no, string, no2) in global_list {
-        info!("{} {} version:{}", no, string, no2);
-    }
-    println!("Instantiate new seat");
-    let seata = global_mgr.instantiate_exact::<WlSeat>(5).unwrap();
-    let seatb = global_mgr.instantiate_exact::<WlSeat>(5).unwrap();
-    #[cfg(feature = "debug")]
-    let global_list = global_mgr.list();
-    #[cfg(feature = "debug")]
-    for (no, string, no2) in global_list {
-        info!("{} {} version:{}", no, string, no2);
-    }
-
-    seata.eq(&seatb);
-
-    let seatc = global_mgr.instantiate_exact::<WlSeat>(7).unwrap();
-    let seat: WlSeat = WlSeat::from(seatc.as_ref().clone());
+    let seat = global_mgr.instantiate_exact::<WlSeat>(7).unwrap();
+    let seat: WlSeat = WlSeat::from(seat.as_ref().clone());
     let im_mgr = global_mgr.instantiate_exact::<ZwpInputMethodManagerV2>(1);
     let vk_mgr = global_mgr.instantiate_exact::<ZwpVirtualKeyboardManagerV1>(1);
     (event_queue, seat, im_mgr, vk_mgr)
