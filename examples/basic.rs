@@ -12,7 +12,9 @@ fn main() {
 
     // Enter a string
     let submission_resulta = vk_service.commit_string("Start typing".to_string());
+    vk_service.sync_eventqueue();
     let submission_resultb = vk_service.commit();
+    vk_service.sync_eventqueue();
     if submission_resulta.is_err() && submission_resultb.is_err() {
         println!("Error");
     };
@@ -20,7 +22,9 @@ fn main() {
 
     // Delete some text
     let submission_resulta = vk_service.delete_surrounding_text(6, 0);
+    vk_service.sync_eventqueue();
     let submission_resultb = vk_service.commit();
+    vk_service.sync_eventqueue();
     if submission_resulta.is_err() && submission_resultb.is_err() {
         println!("Error");
     };
