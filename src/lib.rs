@@ -70,6 +70,9 @@ impl IMService {
                               //im_mgr: Option<(Main<ZwpInputMethodManagerV2>, C)>,
                               //vk_mgr: Option<Main<ZwpVirtualKeyboardManagerV1>>,
     ) -> Self {
+        #[cfg(feature = "debug")]
+        env_logger::init();
+
         let (event_queue, seat, im_mgr, vk_mgr) = wayland::init_wayland();
         let im = if let Ok(im_mgr) = im_mgr {
             #[cfg(feature = "debug")]
