@@ -20,6 +20,7 @@ wayland-protocols = {version="0.29", features = ["client", "unstable_protocols"]
 zwp-input-method = "0.3"
 zwp-virtual-keyboard = "0.2.6"
 log = { version = "0.4", optional = true }
+env_logger = { version = "0.9.0", optional = true }
 
 [dev-dependencies]
 glib = {version = "0.15.11"}
@@ -27,7 +28,6 @@ gdk-sys = {version = "0.15.1"}
 gdk = {version = "0.15.4", features = ["v3_22"]}
 gtk = "0.15.5"
 input-event-codes = "5.16.8"
-env_logger = "0.9.0"
 
 [features]
-debug = ["log"]
+debug = ["log", "env_logger"]
