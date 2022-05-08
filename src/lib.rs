@@ -72,17 +72,27 @@ impl IMService {
     ) -> Self {
         let (event_queue, seat, im_mgr, vk_mgr) = wayland::init_wayland();
         let im = if let Ok(im_mgr) = im_mgr {
+            #[cfg(feature = "debug")]
+            info!("IM manager was availabe");
             if let Some(connector) = connector {
                 Some(Self::new_im(&seat, im_mgr, connector))
             } else {
                 Some(Self::new_im(&seat, im_mgr, DummyConnector::default()))
             }
         } else {
+            #[cfg(feature = "debug")]
+            info!("IM manager was NOT availabe");
             None
         };
 
         //let im = im_mgr.map(|(im_mgr, connector)| Self::new_im(&seat, im_mgr, connector));
-        let vk = vk_mgr.map(|vk_mgr| Self::new_vk(&seat, vk_mgr)).ok();
+        let vk = vk_mgr
+            .map(|vk_mgr| {
+                #[cfg(feature = "debug")]
+                info!("VK manager was availabe");
+                Self::new_vk(&seat, vk_mgr)
+            })
+            .ok();
 
         Self {
             event_queue: Arc::new(Mutex::new(event_queue)),
@@ -181,9 +191,15 @@ impl IMService {
                     im.commit_string(text);
                     Ok(())
                 }
-                false => Err(SubmitError::NotAlive),
+                false => {
+                    #[cfg(feature = "debug")]
+                    info!("Tried commit_string but it was not alive");
+                    Err(SubmitError::NotAlive)
+                }
             }
         } else {
+            #[cfg(feature = "debug")]
+            info!("Tried commit_string but it IM was not available");
             Err(SubmitError::IMNotAvailable)
         }
     }
