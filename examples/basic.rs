@@ -1,8 +1,14 @@
+#[cfg(feature = "debug")]
+use log::{debug, error, info, log_enabled, Level};
+
 use wayland_input::DummyConnector;
 
 fn main() {
+    #[cfg(feature = "debug")]
+    env_logger::init();
+
     println!("Start");
-    let mut vk_service = wayland_input::IMService::new::<DummyConnector>(None);
+    let vk_service = wayland_input::IMService::new::<DummyConnector>(None);
 
     // Enter a string
     let submission_result = vk_service.commit_string("Start typing".to_string());

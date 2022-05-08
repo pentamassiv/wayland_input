@@ -27,6 +27,7 @@ gdk-sys = {version = "0.15.1"}
 gdk = {version = "0.15.4", features = ["v3_22"]}
 gtk = "0.15.5"
 input-event-codes = "5.16.8"
+env_logger = "0.9.0"
 
 [features]
 debug = ["log"]
