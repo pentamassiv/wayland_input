@@ -13,8 +13,8 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tempfile::tempfile;
 use wayland_client::{protocol::wl_seat::WlSeat, EventQueue, Filter, Main};
-use zwp_input_method::input_method_unstable_v2::zwp_input_method_manager_v2::ZwpInputMethodManagerV2;
-use zwp_input_method::input_method_unstable_v2::zwp_input_method_v2::{
+use wayland_protocols::misc::zwp_input_method_v2::client::zwp_input_method_manager_v2::ZwpInputMethodManagerV2;
+use wayland_protocols::misc::zwp_input_method_v2::client::zwp_input_method_v2::{
     Event as InputMethodEvent, ZwpInputMethodV2,
 };
 use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_manager_v1::ZwpVirtualKeyboardManagerV1;
@@ -49,7 +49,7 @@ pub enum KeyState {
 // Mandatory conversion to apply filter to ZwpInputMethodV2
 mod event_enum {
     use wayland_client::event_enum;
-    use zwp_input_method::input_method_unstable_v2::zwp_input_method_v2::ZwpInputMethodV2;
+    use wayland_protocols::misc::zwp_input_method_v2::client::zwp_input_method_v2::ZwpInputMethodV2;
     event_enum!(
         Events | InputMethod => ZwpInputMethodV2
     );

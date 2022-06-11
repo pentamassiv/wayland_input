@@ -1,7 +1,7 @@
 use wayland_client::{
     protocol::wl_seat::WlSeat, Display, EventQueue, GlobalError, GlobalManager, Main,
 };
-use zwp_input_method::input_method_unstable_v2::zwp_input_method_manager_v2::ZwpInputMethodManagerV2;
+use wayland_protocols::misc::zwp_input_method_v2::client::zwp_input_method_manager_v2::ZwpInputMethodManagerV2;
 use zwp_virtual_keyboard::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_manager_v1::ZwpVirtualKeyboardManagerV1;
 
 fn get_wl_global_mgr(display: Display) -> (EventQueue, GlobalManager) {
@@ -43,7 +43,7 @@ pub fn init_wayland() -> (
         .or_else(|_| Display::connect_to_name("wayland-0"))
         .unwrap();
     let (event_queue, global_mgr) = get_wl_global_mgr(display.clone());
-    #[cfg(feature = "debug")]
+    //#[cfg(feature = "debug")]
     let seat = global_mgr.instantiate_exact::<WlSeat>(7).unwrap();
     let seat: WlSeat = WlSeat::from(seat.as_ref().clone());
     let im_mgr = global_mgr.instantiate_exact::<ZwpInputMethodManagerV2>(1);
