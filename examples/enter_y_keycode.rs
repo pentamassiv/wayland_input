@@ -10,25 +10,9 @@ fn main() {
     println!("Start");
     let imput_service = wayland_input::InputService::new::<DummyConnector>(None);
 
-    // Enter a string
-    let submission_resulta = imput_service.commit_string("Start typing".to_string());
+    println!("Initalizesd");
     imput_service.sync_eventqueue();
-    let submission_resultb = imput_service.commit();
-    imput_service.sync_eventqueue();
-    if submission_resulta.is_err() && submission_resultb.is_err() {
-        println!("Error");
-    };
-    println!("Start typing");
-
-    // Delete some text
-    let submission_resulta = imput_service.delete_surrounding_text(6, 0);
-    imput_service.sync_eventqueue();
-    let submission_resultb = imput_service.commit();
-    imput_service.sync_eventqueue();
-    if submission_resulta.is_err() && submission_resultb.is_err() {
-        println!("Error");
-    };
-    println!("Deleted some letters");
+    println!("Queue synced");
 
     // Toggle shift and long press Y
     let keycode = input_event_codes::KEY_Y!();
@@ -42,7 +26,7 @@ fn main() {
     if submission_result.is_err() {
         println!("Error");
     };
-    println!("Second toggle shift and long press x");
+    println!("Entered keycode Y");
 
     imput_service.sync_eventqueue();
 }
