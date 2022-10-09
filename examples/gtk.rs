@@ -62,7 +62,7 @@ fn build_ui(application: &gtk::Application) {
 
     let button = gtk::Button::with_label("Input text!");
 
-    let mut vk_service = wayland_input::IMService::new::<DummyConnector>(None);
+    let mut vk_service = wayland_input::InputService::new::<DummyConnector>(None);
 
     let mut callback = move |_| {
         // Enter a string

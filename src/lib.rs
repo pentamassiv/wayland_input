@@ -1,6 +1,8 @@
-//! This crate provides an easy to use interface for the zwp_virtual_keyboard and the zwp_input_method_v2 protocols.
-//! This could be used for virtual keyboards
-//!
+#[warn(clippy::pedantic)]
+
+/// This crate provides an easy to use interface for the zwp_virtual_keyboard and the zwp_input_method_v2 protocols.
+/// This could be used for virtual keyboards
+
 #[cfg(feature = "debug")]
 #[macro_use]
 extern crate log;
@@ -57,13 +59,13 @@ mod event_enum {
 
 #[derive(Debug)]
 /// Manages the pending state and the current state of the input method.
-pub struct IMService {
+pub struct InputService {
     event_queue: Arc<Mutex<EventQueue>>,
     im: Option<(Main<ZwpInputMethodV2>, Arc<Mutex<Wrapping<u32>>>)>,
     vk: Option<(Main<ZwpVirtualKeyboardV1>, std::time::Instant)>,
 }
 
-impl IMService {
+impl InputService {
     pub fn new<C: IMConnector + 'static>(
         connector: Option<C>, //event_queue: EventQueue,
                               //seat: &WlSeat,
@@ -102,7 +104,7 @@ impl IMService {
     }
 
     /// Creates a new IMServiceArc wrapped in Arc<Mutex<Self>>
-    pub fn new_im<C: IMConnector + 'static>(
+    fn new_im<C: IMConnector + 'static>(
         seat: &WlSeat,
         im_manager: Main<ZwpInputMethodManagerV2>,
         connector: C,
@@ -141,12 +143,12 @@ impl IMService {
     }
 
     /// Creates a new IMServiceArc wrapped in Arc<Mutex<Self>>
-    pub fn new_vk(
+    fn new_vk(
         seat: &WlSeat,
         vk_manager: Main<ZwpVirtualKeyboardManagerV1>,
     ) -> (Main<ZwpVirtualKeyboardV1>, Instant) {
         let base_time = Instant::now();
-        let vk = vk_manager.create_virtual_keyboard(&seat);
+        let vk = vk_manager.create_virtual_keyboard(seat);
         let (keymap_raw_fd, keymap_size_u32) = Self::default_keymap();
         vk.keymap(1, keymap_raw_fd, keymap_size_u32);
         #[cfg(feature = "debug")]
