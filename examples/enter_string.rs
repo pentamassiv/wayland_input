@@ -15,13 +15,17 @@ fn main() {
     println!("Queue synced");
 
     // Enter a string
-    let submission_resulta = imput_service.commit_string("Start typing".to_string());
+    if imput_service
+        .commit_string("Start typing".to_string())
+        .is_err()
+    {
+        println!("Error commit_string");
+    }
     imput_service.sync_eventqueue();
-    let submission_resultb = imput_service.commit();
-    imput_service.sync_eventqueue();
-    if submission_resulta.is_err() && submission_resultb.is_err() {
-        println!("Error");
+    if imput_service.commit().is_err() {
+        println!("Error commit");
     };
+    imput_service.sync_eventqueue();
     println!("Entered string");
 
     imput_service.sync_eventqueue();
