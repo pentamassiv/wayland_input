@@ -1,4 +1,5 @@
 #[warn(clippy::pedantic)]
+#[allow(clippy::type_complexity)]
 
 /// This crate provides an easy to use interface for the zwp_virtual_keyboard and the zwp_input_method_v2 protocols.
 /// This could be used for virtual keyboards
@@ -57,6 +58,7 @@ mod event_enum {
     );
 }
 
+#[allow(clippy::type_complexity)]
 #[derive(Debug)]
 /// Manages the pending state and the current state of the input method.
 pub struct InputService {
@@ -168,7 +170,7 @@ impl InputService {
         // Allocate space in the file first
         keymap_file.seek(SeekFrom::Start(keymap_size_u64)).unwrap();
         keymap_file.write_all(&[0]).unwrap();
-        keymap_file.seek(SeekFrom::Start(0)).unwrap();
+        keymap_file.rewind().unwrap();
         let mut data = unsafe {
             memmap2::MmapOptions::new()
                 .map_mut(&keymap_file)
@@ -335,7 +337,7 @@ impl InputService {
             .lock()
             .unwrap()
             .sync_roundtrip(&mut (), |raw_event, _, _| {
-                println!("Unhandled Event: {:?}", raw_event)
+                println!("Unhandled Event: {raw_event:?}")
             })
             .unwrap();
     }

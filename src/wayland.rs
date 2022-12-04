@@ -33,6 +33,7 @@ fn get_wl_global_mgr(display: Display) -> (EventQueue, GlobalManager) {
     (event_queue, global_mgr)
 }
 
+#[allow(clippy::type_complexity)]
 pub fn init_wayland() -> (
     EventQueue,
     WlSeat,
