@@ -6,27 +6,36 @@ license = "MIT"
 description = "Safe wrapper to easily use the zwp-input-method and zwp-virtual-keyboard protocols"
 repository = "https://github.com/pentamassiv/wayland_input"
 documentation = "https://docs.rs/wayland_input"
-keywords = ["wayland", "virtual_keyboard", "wayland-scanner", "unstable", "wayland-protocols"]
+keywords = [
+    "wayland",
+    "virtual_keyboard",
+    "wayland-scanner",
+    "unstable",
+    "wayland-protocols",
+]
 categories = ["gui", "os::linux-apis"]
 edition = "2021"
 
 [dependencies]
 libc = "0.2.125"
-bitflags = {version = "1.2"}
+bitflags = "1.2"
 tempfile = "3.2"
 memmap2 = "0.5"
-wayland-client = {version="0.29"}
-wayland-protocols = {version="0.29", features = ["client", "unstable_protocols"]}
+wayland-client = "0.29"
+wayland-protocols = { version = "0.29", features = [
+    "client",
+    "unstable_protocols",
+] }
 zwp-virtual-keyboard = "0.2.6"
 log = { version = "0.4", optional = true }
-env_logger = { version = "0.9.0", optional = true }
+env_logger = { version = "0.10.0", optional = true }
 
 [dev-dependencies]
-glib = {version = "0.15.11"}
-gdk-sys = {version = "0.15.1"}
-gdk = {version = "0.15.4", features = ["v3_22"]}
-gtk = "0.15.5"
-input-event-codes = "5.16.8"
+gdk = "0.16"
+glib = "0.16"
+gdk-sys = "0.16"
+gtk = "0.16"
+input-event-codes = "5.16"
 
 [features]
 debug = ["log", "env_logger"]
