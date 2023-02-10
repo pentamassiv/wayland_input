@@ -33,7 +33,7 @@ env_logger = { version = "0.10.0", optional = true }
 [dev-dependencies]
 gdk = "0.16"
 glib = "0.16"
-gdk-sys = "0.16"
+gdk-sys = "0.17"
 gtk = "0.16"
 input-event-codes = "5.16"
 
